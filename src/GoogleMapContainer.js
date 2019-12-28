@@ -1,4 +1,4 @@
-import { Map, GoogleApiWrapper, Marker } from 'google-maps-react';
+import { Map, GoogleApiWrapper, Marker, InfoWindow } from 'google-maps-react';
 import React from 'react';
 
 const mapStyles = {
@@ -20,29 +20,54 @@ const cordinates = {
 class GoogleMapContainer extends React.Component {
    constructor(props) {
     super(props);
-    this.state = cordinates
+    this.state = {
+      markers: cordinates.stores,
+      isOpen: false
+    }
+   }
+
+handleToggleOpen = (props, Marker, e) => {
+  console.log('test')
+	this.setState({
+		isOpen: true,
+    activeMarker: Marker
+	});
   }
 
+handleToggleClose = () => {
+	this.setState({
+		isOpen: false
+	});
+}
   displayMarkers = () => {
-    return this.state.stores.map((store, index) => {
+    return this.state.markers.map((store, index) => {
       return <Marker key={index} id={index} position={{
        lat: store.latitude,
        lng: store.longitude
      }}
-     onClick={() => console.log("You clicked me!")} />
+     label={`${index}`}
+     onClick={this.handleToggleOpen} />
     })
   }
 render() {
     return (
+      <div>
         <Map
           google={this.props.google}
           zoom={12}
           style={mapStyles}
           initialCenter={{ lat: 38.627003, lng: -90.199402}}
         >
-        {this.displayMarkers()}
+         {this.displayMarkers()}
+         {this.state.isOpen &&
+           <InfoWindow onCloseClick={this.handleToggleClose} visible={this.state.isOpen} marker={this.state.activeMarker}>
+            <p style={{color : 'black'}}>Sample Marker Info. </p>
+          </InfoWindow>
+         }
         </Map>
+        </div>
     );
+
   }
 }
 
